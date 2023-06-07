@@ -1,19 +1,26 @@
 part of flutter_cast_video;
 
 final AirPlayPlatform _airPlayPlatform = AirPlayPlatform.instance;
+int? _id;
+
+Future<bool> isAirplayConnected(int id) => _id != null
+    ? Future.value(false)
+    : _airPlayPlatform.invokeIsAirplayConnected(id: _id!);
 
 /// Widget that displays the AirPlay button.
 class AirPlayButton extends StatelessWidget {
   /// Creates a widget displaying a AirPlay button.
-  AirPlayButton(
-      {Key? key,
-      this.size = 30.0,
-      this.color = Colors.black,
-      this.activeColor = Colors.white,
-      this.onRoutesOpening,
-      this.onRoutesClosed,
-      this.onPlayerStateChanged})
-      : super(key: key);
+  AirPlayButton({
+    Key? key,
+    this.size = 30.0,
+    this.color = Colors.black,
+    this.activeColor = Colors.white,
+    this.onRoutesOpening,
+    this.onRoutesClosed,
+    this.onPlayerStateChanged,
+    this.onConnectionStateChange,
+    this.checkConnectionEverySecond,
+  }) : super(key: key);
 
   /// The size of the button.
   final double size;
@@ -31,6 +38,10 @@ class AirPlayButton extends StatelessWidget {
   final VoidCallback? onRoutesClosed;
 
   final Function? onPlayerStateChanged;
+
+  //Checks connection state every checkConnectionEverySecond value (Default is every 2 seconds)
+  final Function(bool)? onConnectionStateChange;
+  final int? checkConnectionEverySecond;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +67,7 @@ class AirPlayButton extends StatelessWidget {
 
   Future<void> _onPlatformViewCreated(int id) async {
     await _airPlayPlatform.init(id);
+
     if (onRoutesOpening != null) {
       _airPlayPlatform
           .onRoutesOpening(id: id)
@@ -71,5 +83,24 @@ class AirPlayButton extends StatelessWidget {
         onPlayerStateChanged!.call(event.connected);
       });
     }
+    if (onConnectionStateChange != null) {
+      _connectionStateChecker(
+          id: id,
+          callback: onConnectionStateChange!,
+          duration: checkConnectionEverySecond);
+    }
   }
+}
+
+void _connectionStateChecker(
+    {required int id, required Function(bool) callback, int? duration}) {
+  bool lastKnowState = false;
+  Timer.periodic(Duration(seconds: duration ?? 2), (timer) {
+    _airPlayPlatform.invokeIsAirplayConnected(id: id).then((value) {
+      if (value == lastKnowState) return;
+      debugPrint("Airplay id: $id | Is connected: $value");
+      callback(value);
+      lastKnowState = value;
+    });
+  });
 }

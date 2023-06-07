@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_cast_video/flutter_cast_video.dart';
@@ -49,16 +50,18 @@ class _CastSampleState extends State<CastSample> {
             activeColor: Colors.amber,
             onRoutesOpening: () => print('opening'),
             onRoutesClosed: () => print('closed'),
+            onConnectionStateChange: (value) {},
           ),
-          ChromeCastButton(
-            size: CastSample._iconSize,
-            color: Colors.white,
-            onButtonCreated: _onButtonCreated,
-            onSessionStarted: _onSessionStarted,
-            onSessionEnded: () => setState(() => _state = AppState.idle),
-            onRequestCompleted: _onRequestCompleted,
-            onRequestFailed: _onRequestFailed,
-          ),
+          if (Platform.isAndroid)
+            ChromeCastButton(
+              size: CastSample._iconSize,
+              color: Colors.white,
+              onButtonCreated: _onButtonCreated,
+              onSessionStarted: _onSessionStarted,
+              onSessionEnded: () => setState(() => _state = AppState.idle),
+              onRequestCompleted: _onRequestCompleted,
+              onRequestFailed: _onRequestFailed,
+            ),
         ],
       ),
       body: Center(child: _handleState()),

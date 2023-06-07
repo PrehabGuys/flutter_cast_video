@@ -73,6 +73,19 @@ class MethodChannelAirPlay extends AirPlayPlatform {
   }
 
   @override
+  Future<bool> invokeIsAirplayConnected({required int id}) async {
+    try {
+      if (_channels[id] == null || _channels.length <= id) return false;
+      return _channels[id]!
+          .invokeMethod<bool>("airPlay#isConnected")
+          .then((value) => value ?? false);
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
+  @override
   Widget buildView(Map<String, dynamic> arguments,
       PlatformViewCreatedCallback onPlatformViewCreated) {
     if (defaultTargetPlatform == TargetPlatform.iOS) {

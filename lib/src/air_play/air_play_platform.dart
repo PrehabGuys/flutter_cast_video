@@ -38,4 +38,9 @@ abstract class AirPlayPlatform {
   Stream<AirplayStateChangedEvent> isAirplayConnected({required int id}) {
     throw UnimplementedError("isAirplayConnect() has not been implemented");
   }
+
+  Future<bool> invokeIsAirplayConnected({required int id}) {
+    throw UnimplementedError(
+        "invokeIsAirplayConnected() has not been implemented");
+  }
 }
