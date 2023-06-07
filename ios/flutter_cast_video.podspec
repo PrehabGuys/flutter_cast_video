@@ -15,7 +15,6 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'google-cast-sdk-no-bluetooth'
   s.platform = :ios, '11.0'
   s.static_framework = true
 
